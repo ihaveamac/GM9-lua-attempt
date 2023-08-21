@@ -5,11 +5,6 @@
 #include "ff.h"
 #include "vff.h"
 #include "fsutil.h"
-#include "gm9ui.h"
-#include "gm9enum.h"
-#include "gm9fs.h"
-#include "gm9loader.h"
-#include "gm9os.h"
 
 #define DEBUGSP ShowPrompt
 
@@ -64,44 +59,8 @@ int LoadLuaFile(lua_State* L, const char* filename) {
     return status;
 }
 
-static const luaL_Reg gm9lualibs[] = {
-    // enum is special so we load it first
-    {GM9LUA_ENUMLIBNAME, gm9lua_open_Enum},
-
-    // built-ins
-    {LUA_GNAME, luaopen_base},
-    {LUA_LOADLIBNAME, luaopen_package},
-    {LUA_COLIBNAME, luaopen_coroutine},
-    {LUA_TABLIBNAME, luaopen_table},
-    //{LUA_IOLIBNAME, luaopen_io},
-    //{LUA_OSLIBNAME, luaopen_os},
-    {LUA_STRLIBNAME, luaopen_string},
-    {LUA_MATHLIBNAME, luaopen_math},
-    {LUA_UTF8LIBNAME, luaopen_utf8},
-    {LUA_DBLIBNAME, luaopen_debug},
-
-    // gm9 custom
-    {GM9LUA_UILIBNAME, gm9lua_open_UI},
-    {GM9LUA_FSLIBNAME, gm9lua_open_FS},
-    {GM9LUA_OSLIBNAME, gm9lua_open_os},
-
-    {NULL, NULL}
-};
-
-static void loadlibs(lua_State* L) {
-    const luaL_Reg* lib;
-    for (lib = gm9lualibs; lib->func; lib++) {
-        luaL_requiref(L, lib->name, lib->func, 1);
-        lua_pop(L, 1); // remove lib from stack
-    }
-}
-
 bool ExecuteLuaScript(const char* path_script) {
     lua_State* L = luaL_newstate();
-    loadlibs(L);
-
-    ResetPackageSearchersAndPath(L);
-    ClearOutputBuffer();
 
     lua_pushliteral(L, VERSION);
     lua_setglobal(L, "GM9VERSION");
