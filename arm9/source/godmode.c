@@ -2197,7 +2197,7 @@ u32 HomeMoreMenu(char* current_path) {
     NandPartitionInfo np_info;
     if (GetNandPartitionInfo(&np_info, NP_TYPE_BONUS, NP_SUBTYPE_CTR, 0, NAND_SYSNAND) != 0) np_info.count = 0;
 
-    const char* optionstr[8];
+    const char* optionstr[9];
     const char* promptstr = STR_HOME_MORE_MENU_SELECT_ACTION;
     u32 n_opt = 0;
     int sdformat = ++n_opt;
@@ -2206,6 +2206,7 @@ u32 HomeMoreMenu(char* current_path) {
     int bsupport = ++n_opt;
     int hsrestore = ((CheckHealthAndSafetyInject("1:") == 0) || (CheckHealthAndSafetyInject("4:") == 0)) ? (int) ++n_opt : -1;
     int clock = ++n_opt;
+    int faketiks = ++n_opt;
     int bright = ++n_opt;
     int calib = ++n_opt;
     int sysinfo = ++n_opt;
@@ -2217,6 +2218,7 @@ u32 HomeMoreMenu(char* current_path) {
     if (bsupport > 0) optionstr[bsupport - 1] = STR_BUILD_SUPPORT_FILES;
     if (hsrestore > 0) optionstr[hsrestore - 1] = STR_RESTORE_H_AND_S;
     if (clock > 0) optionstr[clock - 1] = STR_SET_RTC_DATE_TIME;
+    if (faketiks > 0) optionstr[faketiks - 1] = STR_INSTALL_FAKE_TICKETS;
     if (bright > 0) optionstr[bright - 1] = STR_CONFGURE_BRIGHTNESS;
     if (calib > 0) optionstr[calib - 1] = STR_CALIBRATE_TOUCHSCREEN;
     if (sysinfo > 0) optionstr[sysinfo - 1] = STR_SYSTEM_INFO;
@@ -2321,6 +2323,20 @@ u32 HomeMoreMenu(char* current_path) {
             ShowPrompt(false, STR_NEW_RTC_DATE_TIME_IS_TIME, timestr);
         }
         return 0;
+    }
+    else if (user_select == faketiks) { // fake ticket installer
+        const char* tikoptionstr[2] = {
+            STR_A_DRIVE_SD_CARD,
+            STR_B_DRIVE_SD_CARD
+        };
+        u32 tiknum = 2;
+        if (!CheckSDMountState() || (tiknum = ShowSelectPrompt(
+            (CheckVirtualDrive("E:")) ? 2 : 1, tikoptionstr, "%s",
+            STR_INSTALL_FAKE_TICKETS_SELECT_TITLES_SOURCE))) {
+            ShowPrompt(false, "%s",
+                (InstallFakeTickets(tiknum == 2 ? true : false)) ? STR_INSTALL_FAKE_TICKETS_FAILED : STR_INSTALL_FAKE_TICKETS_SUCCESS);
+            return 0;
+        }
     }
     else if (user_select == bright) { // brightness config dialogue
         s32 old_brightness, new_brightness;

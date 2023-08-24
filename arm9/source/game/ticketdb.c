@@ -184,3 +184,70 @@ u32 CryptTitleKeyInfo(TitleKeysInfo* tik_info, bool encrypt) {
         CryptTitleKey(tik_info->entries + t, encrypt, false);
     return 0;
 }
+
+u32 InstallFakeTickets(bool emunand) {
+    const char* tdbpath = SD_TITLEDB_PATH(emunand);
+    const char* tikdbpath = TICKDB_PATH(emunand);
+    u32 n_titles, n_tickets;
+    u8* title_ids_installed = NULL;
+    u8* title_ids_tickets = NULL;
+
+    // backup current mount path, mount new path
+    char path_store[256] = { 0 };
+    char* path_bak = NULL;
+    strncpy(path_store, GetMountPath(), 256);
+    path_store[255] = '\0';
+    if (*path_store) path_bak = path_store;
+    if (!InitImgFS(tdbpath)) {
+        InitImgFS(path_bak);
+        return 1;
+    }
+
+    n_titles = GetNumTitleInfoEntries(PART_PATH);
+    ShowPrompt(false, "n_titles: %lu", n_titles);
+    if (!n_titles)
+        return 1;
+
+    title_ids_installed = (u8*) malloc(n_titles * 8);
+    if (!title_ids_installed) {
+        ShowPrompt(false, "uhh i could not allocate the memory");
+        return 1;
+    }
+    ShowPrompt("n_titles * 8 = %i", n_titles * 8);
+    if (!ListTitleInfoEntryTitleIDs(PART_PATH, title_ids_installed, n_titles)) {
+        ShowPrompt(false, "uhh i could not list TIEs");
+        free(title_ids_installed);
+        return 1;
+    }
+
+    ShowPrompt(false, "try to mount: %s", tikdbpath);
+    if (!InitImgFS(tikdbpath)) {
+        ShowPrompt(false, "it did not work: %s", tikdbpath);
+        InitImgFS(path_bak);
+        free(title_ids_installed);
+        return 1;
+    }
+
+    n_tickets = GetNumTickets(PART_PATH);
+    ShowPrompt(false, "n_tickets: %lu", n_tickets);
+    if (!n_tickets)
+        return 1;
+
+    title_ids_tickets = (u8*) malloc(n_tickets * 8);
+    if (!ListTicketTitleIDs(PART_PATH, title_ids_tickets, n_tickets)) {
+        free(title_ids_installed);
+        free(title_ids_tickets);
+        return 1;
+    }
+
+    for (u32 i = 0; i < 3; i++) {
+        ShowPrompt(false, "test: %016llx", getbe64(title_ids_installed + i * 8));
+    }
+
+    free(title_ids_installed);
+    free(title_ids_tickets);
+
+    InitImgFS(path_bak);
+
+    return 0;
+}

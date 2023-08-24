@@ -42,3 +42,4 @@ u32 FindTitleKeyForId(u8* titlekey, u8* title_id);
 u32 AddTitleKeyToInfo(TitleKeysInfo* tik_info, TitleKeyEntry* tik_entry, bool decrypted_in, bool decrypted_out, bool devkit);
 u32 AddTicketToInfo(TitleKeysInfo* tik_info, Ticket* ticket, bool decrypt);
 u32 CryptTitleKeyInfo(TitleKeysInfo* tik_info, bool encrypt);
+u32 InstallFakeTickets(bool emunand);
