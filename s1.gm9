@@ -1,0 +1,4 @@
+echo "s1 message1"
+echo "s1 message2"
+execgm9 0:/s2.gm9
+echo "s1 message3 after s2"
