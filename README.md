@@ -18,6 +18,18 @@ The main lua stuff is at `arm9/source/lua`. Custom files are prefixed with `gm9`
 
 The API here is not at all stable. But there are currently two libraries to play with. This is not set in stone!
 
+# NOTES FOR BUILDING lua-attempt-linker-crimes
+
+This branch alters the arm9/link.ld file to split the binary into two memory regions.
+
+The Makefile is not updated yet. After you run `make`, you must manually extract the sections and build the firm yourself.
+
+* `arm-none-eabi-objcopy -O binary arm9/arm9.elf --only-section=AHBWRAM AHBWRAM.bin`
+* `arm-none-eabi-objcopy -O binary arm9/arm9.elf --only-section=AHBWRAM2 AHBWRAM2.bin`
+* `firmtool build out.firm -D AHBWRAM.bin AHBWRAM2.bin arm11/arm11.elf -A 0x08000000 0x080a0000 -C NDMA NDMA XDMA -n 0x08000040`
+
+Alternatively, run `build_firm.sh` which does all of the above.
+
 ## Global
 
 * print(...)
