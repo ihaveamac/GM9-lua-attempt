@@ -4,48 +4,50 @@ ENTRY(_start)
 
 MEMORY
 {
-    VECTORS (RX) : ORIGIN = 0x08000000, LENGTH = 64
-    AHBWRAM (RWX) : ORIGIN = 0x08000040, LENGTH = 744K - 64
+    AHBWRAM (RWX) : ORIGIN = 0x08000000, LENGTH = 512K
+    AHBWRAM2 (RWX) : ORIGIN = 0x080a0000, LENGTH = 128K
 }
 
 SECTIONS
 {
-    .vectors : ALIGN(4) {
-        __vectors_lma = LOADADDR(.vectors);
+    AHBWRAM : ALIGN(4) {
+		/* .vectors */
+        __vectors_lma = LOADADDR(AHBWRAM);
         __vectors_vma = ABSOLUTE(.);
         KEEP(*(.vectors));
         . = ALIGN(4);
         __vectors_len = ABSOLUTE(.) - __vectors_vma;
-    } >VECTORS AT>AHBWRAM
+        . = . + 0x10;
 
-    .text : ALIGN(4) {
+		/* .text */
+        . = ALIGN(4);
         __text_s = ABSOLUTE(.);
         *(.text.start);
         *(.text*);
-        . = ALIGN(4);
         __text_e = ABSOLUTE(.);
+
+		/* .data (should be moved to WRAM2) */
+        . = ALIGN(4);
+        *(.data*);
+
+		/* .bss (should be moved to WRAM2) */
+        . = ALIGN(4);
+        __bss_start = .;
+        *(.bss*);
+        __bss_end = .;
     } >AHBWRAM
 
-    .rodata : ALIGN(4) {
+    AHBWRAM2 : ALIGN(4) {
+		/* .rodata (should be moved to WRAM) */
+        . = ALIGN(4);
         *(.rodata*);
+
+		/* .ARM.exidx (should be moved to WRAM) */
         . = ALIGN(4);
         __exidx_start = .;
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
         __exidx_end = .;
-        . = ALIGN(4);
-    } >AHBWRAM
-
-    .data : ALIGN(4) {
-        *(.data*);
-        . = ALIGN(4);
-    } >AHBWRAM
-
-    .bss : ALIGN(4) {
-        __bss_start = .;
-        *(.bss*);
-        . = ALIGN(4);
-        __bss_end = .;
-    } >AHBWRAM
+    } >AHBWRAM2
 
     __end__ = ABSOLUTE(.);
 }

@@ -8,6 +8,18 @@ The difference with this branch is the module loader had to be removed due to ce
 
 With floating point disabled, resulting FIRM is around 581k (lua-attempt builds to 630k). Boot9 is still being overwritten in memory but Boot11 appears.
 
+# NOTES FOR BUILDING lua-53-mod-linker-crimes
+
+This branch alters the arm9/link.ld file to split the binary into two memory regions.
+
+The Makefile is not updated yet. After you run `make`, you must manually extract the sections and build the firm yourself.
+
+* `arm-none-eabi-objcopy -O binary arm9/arm9.elf --only-section=AHBWRAM AHBWRAM.bin`
+* `arm-none-eabi-objcopy -O binary arm9/arm9.elf --only-section=AHBWRAM2 AHBWRAM2.bin`
+* `firmtool build out.firm -D AHBWRAM.bin AHBWRAM2.bin arm11/arm11.elf -A 0x08000000 0x080a0000 -C NDMA NDMA XDMA -n 0x08000040`
+
+# Original README
+
 * Makefile.build edited to support a LIBS variable on build
 
 * Math lib (-lm) now needed for lua
