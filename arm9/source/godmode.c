@@ -2136,13 +2136,6 @@ u32 FileHandlerMenu(char* current_path, u32* cursor, u32* scroll, PaneData** pan
         BootFirmHandler(file_path, true, false);
         return 0;
     }
-    else if (user_select == script) { // execute script
-        if (ShowPrompt(true, "%s\n%s", pathstr, STR_WARNING_DO_NOT_RUN_UNTRUSTED_SCRIPTS))
-            ShowPrompt(false, "%s\n%s", pathstr, ExecuteGM9Script(file_path) ? STR_SCRIPT_EXECUTE_SUCCESS : STR_SCRIPT_EXECUTE_FAILURE);
-        GetDirContents(current_dir, current_path);
-        ClearScreenF(true, true, COLOR_STD_BG);
-        return 0;
-    }
     else if (user_select == luascript) { // execute lua script
 #ifndef NO_LUA
         if (ShowPrompt(true, "%s\n%s", pathstr, STR_WARNING_DO_NOT_RUN_UNTRUSTED_SCRIPTS))
@@ -2544,8 +2537,6 @@ u32 GodMode(int entrypoint) {
                 bootloader = true;
             } else if ((user_select == 3) && (FileSelectorSupport(loadpath, STR_BOOTLOADER_PAYLOADS_MENU_SELECT_PAYLOAD, PAYLOADS_DIR, "*.firm"))) {
                 BootFirmHandler(loadpath, false, false);
-            } else if ((user_select == 4) && (FileSelectorSupport(loadpath, STR_BOOTLOADER_SCRIPTS_MENU_SELECT_SCRIPT, SCRIPTS_DIR, "*.gm9"))) {
-                ExecuteGM9Script(loadpath);
             } else if (user_select == 5) {
                 exit_mode = GODMODE_EXIT_POWEROFF;
             } else if (user_select == 6) {
@@ -3021,15 +3012,6 @@ u32 GodMode(int entrypoint) {
                         ClearScreenF(true, true, COLOR_STD_BG);
                         break;
                     }
-                } else if (user_select == scripts) {
-                    if (!CheckSupportDir(SCRIPTS_DIR)) {
-                        ShowPrompt(false, STR_SCRIPTS_DIRECTORY_NOT_FOUND, SCRIPTS_DIR);
-                    } else if (FileSelectorSupport(loadpath, STR_HOME_SCRIPTS_MENU_SELECT_SCRIPT, SCRIPTS_DIR, "*.gm9")) {
-                        ExecuteGM9Script(loadpath);
-                        GetDirContents(current_dir, current_path);
-                        ClearScreenF(true, true, COLOR_STD_BG);
-                        break;
-                    }
 #ifndef NO_LUA
                 } else if (user_select == luascripts) {
                     if (!CheckSupportDir(LUASCRIPTS_DIR)) {
@@ -3120,16 +3102,7 @@ u32 ScriptRunner(int entrypoint) {
     if (IS_UNLOCKED && (entrypoint == ENTRY_NANDBOOT))
         BootFirmHandler("0:/iderped.firm", false, false);
 
-    if (PathExist("V:/" VRAM0_AUTORUN_GM9)) {
-        ClearScreenF(true, true, COLOR_STD_BG); // clear splash
-        ExecuteGM9Script("V:/" VRAM0_AUTORUN_GM9);
-    } else if (PathExist("V:/" VRAM0_SCRIPTS)) {
-        char loadpath[256];
-        char title[256];
-        snprintf(title, sizeof(title), STR_FLAVOR_SCRIPTS_MENU_SELECT_SCRIPT, FLAVOR);
-        if (FileSelector(loadpath, title, "V:/" VRAM0_SCRIPTS, "*.gm9", HIDE_EXT, false))
-            ExecuteGM9Script(loadpath);
-    } else ShowPrompt(false, STR_COMPILED_AS_SCRIPT_AUTORUNNER_BUT_NO_SCRIPT_DERP);
+    ShowPrompt(false, "This was built without GM9Script");
 
     // deinit
     DeinitExtFS();

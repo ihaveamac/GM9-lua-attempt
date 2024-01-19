@@ -8,6 +8,8 @@ The difference with this branch is the module loader had to be removed due to ce
 
 With floating point disabled, resulting FIRM is around 581k (lua-attempt builds to 630k). Boot9 is still being overwritten in memory but Boot11 appears.
 
+With GM9Script removed, the binary goes down to around 557k.
+
 * Makefile.build edited to support a LIBS variable on build
 
 * Math lib (-lm) now needed for lua
