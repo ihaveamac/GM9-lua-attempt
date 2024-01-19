@@ -2,7 +2,11 @@
 
 Fork of [d0k3/GodMode9](https://github.com/d0k3/GodMode9) with super experimental Lua support.
 
-A simple test... Includes Lua 5.4.6 with a few changes for compile-time warnings
+This branch (lua-53-mod) uses this for Lua instead: https://github.com/awm/lua
+
+The difference with this branch is the module loader had to be removed due to certain functions that don't exist in 5.3. Maybe I will figure it out later.
+
+With floating point disabled, resulting FIRM is around 581k (lua-attempt builds to 630k). Boot9 is still being overwritten in memory but Boot11 appears.
 
 * Makefile.build edited to support a LIBS variable on build
 

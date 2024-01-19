@@ -8,10 +8,12 @@
 #include "gm9ui.h"
 #include "gm9enum.h"
 #include "gm9fs.h"
-#include "gm9loader.h"
 #include "gm9os.h"
 
 #define DEBUGSP ShowPrompt
+
+// defined in 5.4 but we're using 5.3
+#define LUA_GNAME "_G"
 
 typedef struct GM9LuaLoadF {
     int n; // pre-read characters
@@ -100,7 +102,6 @@ bool ExecuteLuaScript(const char* path_script) {
     lua_State* L = luaL_newstate();
     loadlibs(L);
 
-    ResetPackageSearchersAndPath(L);
     ClearOutputBuffer();
 
     lua_pushliteral(L, VERSION);
