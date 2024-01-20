@@ -10,6 +10,30 @@ MEMORY
 
 SECTIONS
 {
+    /* this has to come *first* so it picks up lua and libm */
+    AHBWRAM2 : ALIGN(4) {
+        build/lua*(.text*);
+        libm*(.text*);
+
+        . = ALIGN(4);
+        *(.rodata*);
+
+        . = ALIGN(4);
+        __exidx_start = .;
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+        __exidx_end = .;
+
+        . = ALIGN(4);
+        *(.data*);
+
+        . = ALIGN(4);
+        __bss_start = .;
+        *(.bss*);
+        __bss_end = .;
+        __end__ = .;
+    } >AHBWRAM2
+
+
     AHBWRAM : ALIGN(4) {
         /* .vectors */
         __vectors_lma = LOADADDR(AHBWRAM);
@@ -26,24 +50,4 @@ SECTIONS
         *(.text*);
         __text_e = ABSOLUTE(.);
     } >AHBWRAM
-
-    AHBWRAM2 : ALIGN(4) {
-        . = ALIGN(4);
-        *(.rodata*);
-
-        . = ALIGN(4);
-        __exidx_start = .;
-        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-        __exidx_end = .;
-
-        . = ALIGN(4);
-        *(.data*);
-
-        . = ALIGN(4);
-        __bss_start = .;
-        *(.bss*);
-        __bss_end = .;
-    } >AHBWRAM2
-
-    __end__ = ABSOLUTE(.);
 }
